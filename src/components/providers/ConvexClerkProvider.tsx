@@ -1,9 +1,12 @@
 "use client";
 
 import { ClerkProvider, useAuth } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 import { ConvexReactClient } from "convex/react";
+import { useMutation } from "convex/react";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
+import { api } from "../../../convex/_generated/api";
 
 type ConvexClerkUseAuth = Parameters<typeof ConvexProviderWithClerk>[0]["useAuth"];
 
@@ -15,6 +18,33 @@ function useConvexClerkAuth(): ReturnType<ConvexClerkUseAuth> {
     sessionClaims:
       (auth as { sessionClaims?: Record<string, unknown> | null }).sessionClaims ?? null,
   } as ReturnType<ConvexClerkUseAuth>;
+}
+
+function SyncClerkUserWithConvex() {
+  const { isLoaded, isSignedIn, user } = useUser();
+  const syncUser = useMutation(api.users.syncUser);
+  const lastSyncedUserId = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!isLoaded || !isSignedIn || !user) return;
+    if (lastSyncedUserId.current === user.id) return;
+
+    const email = user.primaryEmailAddress?.emailAddress;
+    if (!email) return;
+
+    lastSyncedUserId.current = user.id;
+
+    void syncUser({
+      clerkId: user.id,
+      email,
+      name: user.fullName || user.username || email,
+      image: user.imageUrl,
+    }).catch(() => {
+      lastSyncedUserId.current = null;
+    });
+  }, [isLoaded, isSignedIn, syncUser, user]);
+
+  return null;
 }
 
 function ConvexClerkProvider({ children }: { children: React.ReactNode }) {
@@ -30,6 +60,7 @@ function ConvexClerkProvider({ children }: { children: React.ReactNode }) {
   return (
     <ClerkProvider publishableKey={clerkPublishableKey}>
       <ConvexProviderWithClerk client={convex} useAuth={useConvexClerkAuth}>
+        <SyncClerkUserWithConvex />
         {children}
       </ConvexProviderWithClerk>
     </ClerkProvider>

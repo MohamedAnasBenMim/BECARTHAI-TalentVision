@@ -47,8 +47,13 @@ http.route({
     if (eventType === "user.created") {
       const { id, email_addresses, first_name, last_name, image_url } = evt.data;
 
-      const email = email_addresses[0].email_address;
-      const name = `${first_name || ""} ${last_name || ""}`.trim();
+      const email = email_addresses[0]?.email_address;
+      if (!email) {
+        console.log("Skipping Clerk user without email address:", id);
+        return new Response("User has no email address", { status: 200 });
+      }
+
+      const name = `${first_name || ""} ${last_name || ""}`.trim() || email;
 
       try {
         await ctx.runMutation(api.users.syncUser, {
