@@ -22,10 +22,10 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "CodeSync Interview Platform",
-  description: "Remote technical interview platform with video calls and scheduling",
+  title: "BECARTHAI TalentVision",
+  description:
+    "Interview management and video evaluation platform for BECARTH.AI Consulting.",
 };
-
 export const dynamic = "force-dynamic";
 
 export default function RootLayout({
