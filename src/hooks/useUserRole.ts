@@ -3,13 +3,14 @@ import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 
 export const useUserRole = () => {
-  const { user } = useUser();
+  const { isLoaded, user } = useUser();
 
-  const userData = useQuery(api.users.getUserByClerkId, {
-    clerkId: user?.id || "",
-  });
+  const userData = useQuery(
+    api.users.getUserByClerkId,
+    user?.id ? { clerkId: user.id } : "skip"
+  );
 
-  const isLoading = userData === undefined;
+  const isLoading = !isLoaded || (Boolean(user?.id) && userData === undefined);
 
   return {
     isLoading,

@@ -1,14 +1,13 @@
 import { useUser } from "@clerk/nextjs";
 import { useStreamVideoClient } from "@stream-io/video-react-sdk";
-import { useMutation, useQuery } from "convex/react";
-import { useState } from "react";
+import { useConvexAuth, useMutation, useQuery } from "convex/react";
+import { useEffect, useState } from "react";
 import { api } from "../../../../convex/_generated/api";
 import toast from "react-hot-toast";
 import {
   Dialog,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogContent,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -26,15 +25,20 @@ import { Loader2Icon, XIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { TIME_SLOTS } from "@/constants";
 import MeetingCard from "@/components/MeetingCard";
+import LoaderUI from "@/components/LoaderUI";
 
 function InterviewScheduleUI() {
   const client = useStreamVideoClient();
   const { user } = useUser();
+  const { isAuthenticated, isLoading: isConvexAuthLoading } = useConvexAuth();
   const [open, setOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
 
-  const interviews = useQuery(api.interviews.getAllInterviews) ?? [];
-  const users = useQuery(api.users.getUsers) ?? [];
+  const interviews = useQuery(
+    api.interviews.getAllInterviews,
+    isAuthenticated ? {} : "skip"
+  ) ?? [];
+  const users = useQuery(api.users.getUsers, isAuthenticated ? {} : "skip") ?? [];
   const createInterview = useMutation(api.interviews.createInterview);
 
   const candidates = users?.filter((u) => u.role === "candidate");
@@ -48,6 +52,16 @@ function InterviewScheduleUI() {
     candidateId: "",
     interviewerIds: user?.id ? [user.id] : [],
   });
+
+  useEffect(() => {
+    if (!user?.id) return;
+
+    setFormData((prev) =>
+      prev.interviewerIds.includes(user.id)
+        ? prev
+        : { ...prev, interviewerIds: [user.id, ...prev.interviewerIds] }
+    );
+  }, [user?.id]);
 
   const scheduleMeeting = async () => {
     if (!client || !user) return;
@@ -131,6 +145,18 @@ function InterviewScheduleUI() {
     (i) => !formData.interviewerIds.includes(i.clerkId)
   );
 
+  if (isConvexAuthLoading) return <LoaderUI />;
+  if (!isAuthenticated) {
+    return (
+      <div className="container max-w-7xl mx-auto p-6">
+        <p className="text-muted-foreground">
+          Your session is still connecting to Convex. Sign out, sign back in, then refresh this
+          page.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="container max-w-7xl mx-auto p-6 space-y-8">
       <div className="flex items-center justify-between">
@@ -143,9 +169,9 @@ function InterviewScheduleUI() {
         {/* DIALOG */}
 
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button size="lg">Schedule Interview</Button>
-          </DialogTrigger>
+          <Button size="lg" onClick={() => setOpen(true)}>
+            Schedule Interview
+          </Button>
 
           <DialogContent className="sm:max-w-[500px] h-[calc(100vh-200px)] overflow-auto">
             <DialogHeader>

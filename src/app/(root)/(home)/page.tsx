@@ -30,8 +30,14 @@ export default function Home() {
         setModalType("join");
         setShowModal(true);
         break;
+      case "Schedule":
+        router.push("/schedule");
+        break;
+      case "Recordings":
+        router.push("/recordings");
+        break;
       default:
-        router.push(`/${title.toLowerCase()}`);
+        router.push("/");
     }
   };
 

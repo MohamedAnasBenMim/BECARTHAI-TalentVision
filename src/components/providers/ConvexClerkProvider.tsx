@@ -14,10 +14,14 @@ function useConvexClerkAuth(): ReturnType<ConvexClerkUseAuth> {
   const auth = useAuth();
 
   return {
-    ...auth,
-    sessionClaims:
-      (auth as { sessionClaims?: Record<string, unknown> | null }).sessionClaims ?? null,
-  } as ReturnType<ConvexClerkUseAuth>;
+    isLoaded: auth.isLoaded,
+    isSignedIn: auth.isSignedIn,
+    getToken: auth.getToken,
+    orgId: auth.orgId,
+    orgRole: auth.orgRole,
+    sessionId: auth.sessionId,
+    sessionClaims: null,
+  };
 }
 
 function SyncClerkUserWithConvex() {
