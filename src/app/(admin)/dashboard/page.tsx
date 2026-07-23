@@ -37,8 +37,17 @@ function DashboardPage() {
   const groupedInterviews = groupInterviews(interviews);
 
   return (
-    <div className="container mx-auto py-10">
-      <div className="flex items-center mb-8">
+    <div className="container mx-auto max-w-7xl px-4 py-8 sm:px-6">
+      <div className="mb-8 flex flex-col gap-4 rounded-lg border border-border/70 bg-card/80 p-6 shadow-sm shadow-black/20 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+            Evaluation Desk
+          </p>
+          <h1 className="mt-2 text-3xl font-bold tracking-tight">Interview Dashboard</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Monitor active interviews, review candidate outcomes, and record hiring signals.
+          </p>
+        </div>
         <Link href="/schedule">
           <Button>Schedule New Interview</Button>
         </Link>
@@ -50,8 +59,8 @@ function DashboardPage() {
             groupedInterviews[category.id]?.length > 0 && (
               <section key={category.id}>
                 {/* CATEGORY TITLE */}
-                <div className="flex items-center gap-2 mb-4">
-                  <h2 className="text-xl font-semibold">{category.title}</h2>
+                <div className="mb-4 flex items-center gap-2">
+                  <h2 className="text-xl font-semibold tracking-tight">{category.title}</h2>
                   <Badge variant={category.variant}>{groupedInterviews[category.id].length}</Badge>
                 </div>
 
@@ -61,11 +70,15 @@ function DashboardPage() {
                     const startTime = new Date(interview.startTime);
 
                     return (
-                      <Card className="hover:shadow-md transition-all">
+                      <Card
+                        key={interview._id}
+                        className="overflow-hidden transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10"
+                      >
+                        <div className="h-1 bg-gradient-to-r from-primary via-accent to-fuchsia-400" />
                         {/* CANDIDATE INFO */}
                         <CardHeader className="p-4">
                           <div className="flex items-center gap-3">
-                            <Avatar className="h-10 w-10">
+                            <Avatar className="h-10 w-10 border border-border">
                               <AvatarImage src={candidateInfo.image} />
                               <AvatarFallback>{candidateInfo.initials}</AvatarFallback>
                             </Avatar>

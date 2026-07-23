@@ -40,7 +40,7 @@ function MeetingSetup({ onSetupComplete }: { onSetupComplete: () => void }) {
             </div>
 
             {/* VIDEO PREVIEW */}
-            <div className="mt-4 flex-1 min-h-[400px] rounded-xl overflow-hidden bg-muted/50 border relative">
+            <div className="mt-4 flex-1 min-h-[400px] rounded-lg overflow-hidden bg-muted/50 border border-border/80 relative">
               <div className="absolute inset-0">
                 <VideoPreview className="h-full w-full" />
               </div>
@@ -58,7 +58,7 @@ function MeetingSetup({ onSetupComplete }: { onSetupComplete: () => void }) {
               </div>
 
               <div className="flex-1 flex flex-col justify-between">
-                <div className="spacey-6 mt-8">
+                <div className="space-y-6 mt-8">
                   {/* CAM CONTROL */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">

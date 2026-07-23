@@ -158,22 +158,24 @@ function InterviewScheduleUI() {
   }
 
   return (
-    <div className="container max-w-7xl mx-auto p-6 space-y-8">
-      <div className="flex items-center justify-between">
-        {/* HEADER INFO */}
+    <div className="container mx-auto max-w-7xl space-y-8 p-4 sm:p-6">
+      <div className="flex flex-col gap-4 rounded-lg border border-border/70 bg-card/80 p-6 shadow-sm shadow-black/20 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Interviews</h1>
-          <p className="text-muted-foreground mt-1">Schedule and manage interviews</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+            Talent Operations
+          </p>
+          <h1 className="mt-2 text-3xl font-bold tracking-tight">Schedule Interviews</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Create structured video evaluations for candidates and interview teams.
+          </p>
         </div>
-
-        {/* DIALOG */}
 
         <Dialog open={open} onOpenChange={setOpen}>
           <Button size="lg" onClick={() => setOpen(true)}>
             Schedule Interview
           </Button>
 
-          <DialogContent className="sm:max-w-[500px] h-[calc(100vh-200px)] overflow-auto">
+          <DialogContent className="h-[calc(100vh-160px)] overflow-auto border-border/80 bg-card/95 sm:max-w-[520px]">
             <DialogHeader>
               <DialogTitle>Schedule Interview</DialogTitle>
             </DialogHeader>
@@ -313,13 +315,12 @@ function InterviewScheduleUI() {
         </Dialog>
       </div>
 
-      {/* LOADING STATE & MEETING CARDS */}
       {!interviews ? (
         <div className="flex justify-center py-12">
           <Loader2Icon className="size-8 animate-spin text-muted-foreground" />
         </div>
       ) : interviews.length > 0 ? (
-        <div className="spacey-4">
+        <div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {interviews.map((interview) => (
               <MeetingCard key={interview._id} interview={interview} />

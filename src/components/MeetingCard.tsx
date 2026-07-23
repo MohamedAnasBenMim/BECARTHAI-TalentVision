@@ -16,8 +16,9 @@ function MeetingCard({ interview }: { interview: Interview }) {
   const formattedDate = format(new Date(interview.startTime), "EEEE, MMMM d · h:mm a");
 
   return (
-    <Card>
-      <CardHeader className="space-y-2">
+    <Card className="overflow-hidden transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10">
+      <div className="h-1 bg-gradient-to-r from-primary via-accent to-fuchsia-400" />
+      <CardHeader className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <CalendarIcon className="h-4 w-4" />
@@ -33,7 +34,7 @@ function MeetingCard({ interview }: { interview: Interview }) {
           </Badge>
         </div>
 
-        <CardTitle>{interview.title}</CardTitle>
+        <CardTitle className="text-lg tracking-tight">{interview.title}</CardTitle>
 
         {interview.description && (
           <CardDescription className="line-clamp-2">{interview.description}</CardDescription>

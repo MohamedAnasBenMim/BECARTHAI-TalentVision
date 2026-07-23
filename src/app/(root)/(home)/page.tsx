@@ -44,18 +44,37 @@ export default function Home() {
   if (isLoading) return <LoaderUI />;
 
   return (
-    <div className="container max-w-7xl mx-auto p-6">
-      {/* WELCOME SECTION */}
-      <div className="rounded-lg bg-card p-6 border shadow-sm mb-10">
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">
-          Welcome back!
-        </h1>
-        <p className="text-muted-foreground mt-2">
-          {isInterviewer
-            ? "Manage your interviews and review candidates effectively"
-            : "Access your upcoming interviews and preparations"}
-        </p>
-      </div>
+    <div className="container mx-auto max-w-7xl p-4 sm:p-6">
+      <section className="mb-8 overflow-hidden rounded-lg border border-border/70 bg-card/80 shadow-sm shadow-black/20">
+        <div className="flex flex-col gap-5 border-b border-border/70 p-6 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+              BECARTH.AI TalentVision
+            </p>
+            <h1 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+              Interview command center
+            </h1>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+              {isInterviewer
+                ? "Coordinate live evaluations, schedule candidate sessions, and review outcomes from one focused workspace."
+                : "Track your scheduled interviews and join sessions prepared."}
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-3 text-sm sm:min-w-[280px]">
+            <div className="rounded-lg border border-border/70 bg-background/50 p-3">
+              <p className="text-muted-foreground">Role</p>
+              <p className="mt-1 font-semibold text-foreground">
+                {isInterviewer ? "Interviewer" : "Candidate"}
+              </p>
+            </div>
+            <div className="rounded-lg border border-border/70 bg-background/50 p-3">
+              <p className="text-muted-foreground">Workspace</p>
+              <p className="mt-1 font-semibold text-foreground">Consulting</p>
+            </div>
+          </div>
+        </div>
+        <div className="h-1 bg-gradient-to-r from-primary via-accent to-fuchsia-400" />
+      </section>
 
       {isInterviewer ? (
         <>
@@ -78,9 +97,11 @@ export default function Home() {
         </>
       ) : (
         <>
-          <div>
-            <h1 className="text-3xl font-bold">Your Interviews</h1>
-            <p className="text-muted-foreground mt-1">View and join your scheduled interviews</p>
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold tracking-tight">Your Interviews</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              View and join your scheduled interviews
+            </p>
           </div>
 
           <div className="mt-8">
