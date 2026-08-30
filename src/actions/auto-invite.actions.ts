@@ -149,7 +149,7 @@ export async function autoSendTechnicalInterviewInvite({
   });
 
   const convex = new ConvexHttpClient(convexUrl);
-  const interview = await convex.mutation(api.applications.createAutoInterviewForTargetApplication, {
+  const interview: any = await convex.mutation(api.applications.createAutoInterviewForTargetApplication, {
     id: applicationId as Id<"applications">,
     streamCallId,
     title,
@@ -157,7 +157,7 @@ export async function autoSendTechnicalInterviewInvite({
     startTime,
   });
 
-  if (!interview) {
+  if (!interview || typeof interview !== "object") {
     return { sent: false as const };
   }
 

@@ -33,16 +33,36 @@ function formatStartsIn(startTime: number, now: number) {
   return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
+function isCandidateForThisInterview(
+  user: ReturnType<typeof useUser>["user"],
+  interview: { candidateId: string; candidateEmail?: string } | null
+) {
+  if (!user || !interview) return false;
+
+  const email = (user.primaryEmailAddress?.emailAddress ?? "").trim().toLowerCase();
+
+  return (
+    interview.candidateId === user.id ||
+    Boolean(email && interview.candidateId.toLowerCase() === email) ||
+    Boolean(email && interview.candidateEmail?.toLowerCase() === email)
+  );
+}
+
 function MeetingPage() {
   const { id } = useParams();
-  const { isLoaded } = useUser();
-  const { isCandidate, isLoading: isRoleLoading } = useUserRole();
+  const { isLoaded, user } = useUser();
+  const { isCandidate: isRoleCandidate, isLoading: isRoleLoading } = useUserRole();
   const streamCallId = Array.isArray(id) ? id[0] : id;
   const { call, isCallLoading } = useGetCallById(streamCallId);
   const interview = useQuery(
     api.interviews.getInterviewByStreamCallId,
     streamCallId ? { streamCallId } : "skip"
   );
+
+  // Determine candidate status from the interview record itself,
+  // not just the users table role (which defaults to "interviewer" for all new signups).
+  const isCandidateByInterview = isCandidateForThisInterview(user ?? null, interview ?? null);
+  const shouldShowAssessment = isRoleCandidate || isCandidateByInterview;
 
   const [isEntryConfirmed, setIsEntryConfirmed] = useState(false);
   const [isAssessmentPassed, setIsAssessmentPassed] = useState(false);
@@ -79,7 +99,7 @@ function MeetingPage() {
       );
     }
 
-    if (isCandidate && status === "live" && !isAssessmentPassed) {
+    if (shouldShowAssessment && status === "live" && !isAssessmentPassed) {
       return (
         <AssessmentGate
           streamCallId={streamCallId}
