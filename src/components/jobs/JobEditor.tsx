@@ -153,7 +153,12 @@ export default function JobEditor({ jobId }: JobEditorProps) {
       toast.success("Job description, QCM assessment & coding test generated with AI!");
     } catch (error: any) {
       console.error(error);
-      toast.error(`Failed to generate with AI: ${error?.message || error}`);
+      const errMsg = error?.message || String(error);
+      if (errMsg.includes("GEMINI_API_KEY is missing")) {
+        toast.error("GEMINI_API_KEY is missing in Convex environment. Run: npx convex env set GEMINI_API_KEY <key>", { duration: 6000 });
+      } else {
+        toast.error(`Failed to generate with AI: ${errMsg}`);
+      }
     } finally {
       setIsGenerating(false);
     }

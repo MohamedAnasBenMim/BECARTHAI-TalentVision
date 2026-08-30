@@ -5,9 +5,9 @@ import { v } from "convex/values";
 
 const CANDIDATE_MODELS = [
   "gemini-2.5-flash",
-  "gemini-1.5-flash",
-  "gemini-2.0-flash",
-  "gemini-1.5-pro",
+  "gemini-3.6-flash",
+  "gemini-2.5-pro",
+  "gemini-flash-latest",
 ];
 
 function extractJsonText(rawText: string): string {
@@ -38,7 +38,8 @@ export const generateJobDescription = action({
     }
 
     const customModel = process.env.GEMINI_MODEL;
-    const modelsToTry = customModel ? [customModel, ...CANDIDATE_MODELS] : CANDIDATE_MODELS;
+    const rawModelsToTry = customModel ? [customModel, ...CANDIDATE_MODELS] : CANDIDATE_MODELS;
+    const modelsToTry = rawModelsToTry.filter((model, index, arr) => model && arr.indexOf(model) === index);
 
     const promptText = `
 Role: Expert IT Recruiter and Technical Evaluator.
@@ -123,7 +124,10 @@ Required JSON shape:
         }
 
         const data = await response.json();
-        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        const parts = data.candidates?.[0]?.content?.parts
+          ?.filter((part: any) => typeof part.text === "string" && part.text.trim().length > 0)
+          ?.map((part: any) => part.text);
+        const text = parts && parts.length > 0 ? parts.join("\n") : null;
         if (!text) continue;
 
         const jsonString = extractJsonText(text);
