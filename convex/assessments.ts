@@ -203,7 +203,10 @@ async function getQuestionBankForInterview(ctx: any, interview: Doc<"interviews"
   const matchedJob = jobs.find(
     (j: any) =>
       j.jobId === interview.title ||
-      j.title.toLowerCase() === interview.title.toLowerCase()
+      j.title.toLowerCase() === interview.title.toLowerCase() ||
+      interview.title.toLowerCase().includes(j.title.toLowerCase()) ||
+      interview.title.toLowerCase().includes(j.jobId.toLowerCase()) ||
+      (interview.description && interview.description.toLowerCase().includes(j.title.toLowerCase()))
   );
 
   if (matchedJob?.qcmQuestions && matchedJob.qcmQuestions.length > 0) {

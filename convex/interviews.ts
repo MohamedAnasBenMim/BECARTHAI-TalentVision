@@ -205,7 +205,10 @@ export const getJobForStreamCall = query({
       jobs.find(
         (j) =>
           j.jobId === interview.title ||
-          j.title.toLowerCase() === interview.title.toLowerCase()
+          j.title.toLowerCase() === interview.title.toLowerCase() ||
+          interview.title.toLowerCase().includes(j.title.toLowerCase()) ||
+          interview.title.toLowerCase().includes(j.jobId.toLowerCase()) ||
+          (interview.description && interview.description.toLowerCase().includes(j.title.toLowerCase()))
       ) ?? null
     );
   },

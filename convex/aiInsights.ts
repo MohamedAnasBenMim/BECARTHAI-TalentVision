@@ -25,8 +25,11 @@ export const generateInterviewInsights = action({
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) throw new Error("GEMINI_API_KEY is missing");
 
-    const model = process.env.GEMINI_MODEL ?? DEFAULT_GEMINI_MODEL;
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+    const customModel = process.env.GEMINI_MODEL;
+    const candidates = customModel
+      ? [customModel, "gemini-2.5-flash", "gemini-3.6-flash", "gemini-flash-latest"]
+      : ["gemini-2.5-flash", "gemini-3.6-flash", "gemini-flash-latest"];
+    const modelsToTry = candidates.filter((m, i, a) => m && a.indexOf(m) === i);
 
     const commentsText = comments.map(c => `- Rating: ${c.rating}/5. Notes: ${c.content}`).join("\n");
     
@@ -51,44 +54,55 @@ Please provide a concise, structured summary in Markdown format with the followi
     const body = JSON.stringify({
       contents: [{ role: "user", parts: [{ text: promptText }] }],
       generationConfig: {
-        maxOutputTokens: 1000,
+        maxOutputTokens: 1500,
       },
     });
 
-    for (let attempt = 1; attempt <= GEMINI_MAX_ATTEMPTS; attempt++) {
-      try {
-        const response = await fetch(url, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-goog-api-key": apiKey,
-          },
-          body,
-        });
+    let lastError = "";
 
-        if (response.ok) {
-          const data = await response.json();
-          const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (!text) throw new Error("No text returned from Gemini");
-          
-          // Save the AI summary as a comment
-          await ctx.runMutation(internal.comments.addInternalComment, {
-            interviewId: args.interviewId,
-            content: text.trim(),
-            rating: 0, // 0 means AI
-            interviewerId: "AI_SUPER_RECRUITER",
+    for (const model of modelsToTry) {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+
+      for (let attempt = 1; attempt <= GEMINI_MAX_ATTEMPTS; attempt++) {
+        try {
+          const response = await fetch(url, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-goog-api-key": apiKey,
+            },
+            body,
           });
-          
-          return "Insights generated successfully.";
-        }
 
-        if (attempt === GEMINI_MAX_ATTEMPTS) {
-          throw new Error(`Gemini API error: ${response.status} ${await response.text()}`);
+          if (response.ok) {
+            const data = await response.json();
+            const parts = data.candidates?.[0]?.content?.parts
+              ?.filter((part: any) => typeof part.text === "string" && part.text.trim().length > 0)
+              ?.map((part: any) => part.text);
+            const text = parts && parts.length > 0 ? parts.join("\n").trim() : null;
+
+            if (text) {
+              // Save the AI summary as a comment
+              await ctx.runMutation(internal.comments.addInternalComment, {
+                interviewId: args.interviewId,
+                content: text,
+                rating: 0, // 0 means AI
+                interviewerId: "AI_SUPER_RECRUITER",
+              });
+              
+              return "Insights generated successfully.";
+            }
+          }
+
+          const errText = await response.text();
+          lastError = `${model} (${response.status}): ${errText}`;
+        } catch (error) {
+          lastError = error instanceof Error ? error.message : String(error);
         }
-      } catch (error) {
-        if (attempt === GEMINI_MAX_ATTEMPTS) throw error;
+        await new Promise(r => setTimeout(r, 500 * attempt));
       }
-      await new Promise(r => setTimeout(r, 1000 * attempt));
     }
+
+    throw new Error(`Gemini API error: ${lastError || "All candidate models failed"}`);
   },
 });
