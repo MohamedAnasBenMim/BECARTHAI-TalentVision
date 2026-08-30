@@ -261,8 +261,4 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to view the 
 
 Built and maintained for **BECARTH.AI Consulting**. Contributions, bug reports, and feature proposals are welcome via Pull Requests.
 
----
 
-## 📄 License
-
-This project is licensed under the [MIT License](LICENSE).
