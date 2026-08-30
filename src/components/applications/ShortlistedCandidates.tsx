@@ -66,7 +66,8 @@ export default function ShortlistedCandidates() {
   const { user } = useUser();
   const applications = useQuery(api.applications.getApplications);
   const createInterview = useMutation(api.interviews.createInterview);
-  const updateApplicationStatus = useMutation(api.applications.updateCandidateStatus);
+  const updateCandidateFinalEvaluation = useMutation(api.applications.updateCandidateFinalEvaluation);
+  const updateApplicationStatus = useMutation(api.applications.updateApplicationStatus);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCandidate, setSelectedCandidate] = useState<any | null>(null);
@@ -161,7 +162,7 @@ export default function ShortlistedCandidates() {
         meetingUrl,
       });
 
-      await updateApplicationStatus({
+      await updateCandidateFinalEvaluation({
         id: selectedCandidate._id,
         status: "hr_shortlisted",
       });

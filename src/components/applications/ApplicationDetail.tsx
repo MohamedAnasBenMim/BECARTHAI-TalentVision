@@ -240,10 +240,10 @@ export default function ApplicationDetail({ applicationId }: ApplicationDetailPr
     return `Technical Interview - ${application.position}`;
   }, [application]);
 
-  const openScheduleDialog = () => {
+  const openScheduleDialog = (customTitle?: string) => {
     setScheduleForm((prev) => ({
       ...prev,
-      title: prev.title || defaultTitle,
+      title: customTitle || prev.title || defaultTitle,
       description: prev.description,
     }));
     setIsScheduleOpen(true);
@@ -667,7 +667,7 @@ export default function ApplicationDetail({ applicationId }: ApplicationDetailPr
               <CardTitle>Recruiter Decision</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button className="w-full" disabled={!canInvite} onClick={openScheduleDialog}>
+              <Button className="w-full" disabled={!canInvite} onClick={() => openScheduleDialog()}>
                 <CheckCircle2Icon className="size-4" />
                 Invite to Technical Interview
               </Button>
